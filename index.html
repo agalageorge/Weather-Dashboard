@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WeatherCast | Real-Time Weather Dashboard</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+                /* === RESPONSIVE DESIGN === */
+
+        /* Mobile Devices - up to 768px */
+        @media screen and (max-width: 768px) {
+
+        main {
+            height: auto;
+            border-radius: 0;
+            padding-bottom: 20px;
+        }
+
+        header {
+            height: auto;
+            padding: 10px;
+            flex-direction: column;
+        }
+
+        .header_top {
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #app_title {
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+        }
+
+        #header_control {
+            margin: 0;
+            flex-direction: row;
+            justify-content: center;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .search_box {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #city_search {
+            font-size: 1rem;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .search_button,
+        .location_button {
+            position: static;
+            transform: none;
+            margin: 0;
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        #content_top {
+            flex-direction: column;
+            height: auto;
+        }
+
+        #content_top_left,
+        #content_top_right {
+            width: 100%;
+            height: auto;
+            min-height: 200px;
+        }
+
+        #content_top_right {
+            background-position: center;
+        }
+
+        #content_bottom {
+            flex-direction: column;
+        }
+
+        #content_bottom_left,
+        .content_bottom_right {
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .content_bottom_right {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        footer {
+            flex-direction: column;
+            height: auto;
+            text-align: center;
+            padding: 20px;
+            gap: 15px;
+        }
+
+        #footer_left, #footer_right {
+            width: 100%;
+            margin: 0;
+        }
+
+        #footer_right {
+            justify-content: center;
+        }
+
+        .feedback_btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .modal_content {
+            width: 95%;
+            padding: 15px;
+        }
+
+        #modal_head {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .weather_parameters {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .weather_parameters #weather_parameters_icon {
+            margin: 0 auto;
+        }
+
+        }
+
+        /* Tablets - 769px to 1024px */
+        @media screen and (min-width: 769px) and (max-width: 1024px) {
+
+        #content_top {
+            flex-direction: column;
+            height: auto;
+        }
+
+        #content_top_left,
+        #content_top_right {
+            width: 100%;
+            height: auto;
+        }
+
+        .content_bottom_right {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        footer {
+            flex-direction: column;
+            height: auto;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .feedback_btn {
+            justify-content: center;
+        }
+
+        }
+
+    </style>
+</head>
+<body>
+    <main class="main">
+        <header>
+            <div class="header_top">
+                <div id="app_title">
+                    <img src="images/logo.png" height="70px" width="70px" alt="Logo">
+                    <h2>WeatherCast</h2>
+                </div>
+                <div id="header_control">
+                    <div id="unit_toggle">
+                        <button class="unit_btn active" data-unit="celsius" aria-label="Celsius">°C</button>
+                        <button class="unit_btn" data-unit="fahrenheit" aria-label="Fahrenheit">°F</button>
+                    </div>
+                    <button id="refresh_btn" class="refresh_button" title="Refresh data" aria-label="Refresh data">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-cw-icon lucide-refresh-cw"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="header_bottom">
+                <div class="search_container">
+                    <div class="search_box">
+                        <input type="text" id="city_search" placeholder="Search City..." autocomplete="off" aria-label="Search City">
+                        <button id="search_btn" class="search_button" aria-label="Search">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon lucide-search"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+                        </button>
+                        <button id="location_btn" class="location_button" title="Use my location" aria-label="Use my location">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-locate-fixed-icon lucide-locate-fixed"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                    <div class="autocomplete_container" id="autocomplete_results"></div>
+                </div>
+            </div>
+        </header>
+        <div class="content">
+            <section id="content_top">
+                <div id="content_top_left">
+                    <div class="content_date_time">
+                        <nav id="date">Today</nav>
+                        <nav id="time"></nav>
+                    </div>
+                    <div class="content_date_tempreture" id="content_date_tempreture">
+                        <nav>
+                            <div id="temperature">
+                                <h3></h3>
+                            </div>
+                            <div id="weather_icon">
+
+                            </div>
+                        </nav>
+                        <h5 id="weather_parameter">
+                        
+                        </h5>
+                    </div>
+                    <hr>
+                    <div class="current_city">
+                        <div id="location_icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-house-icon lucide-map-pin-house"><path d="M15 22a1 1 0 0 1-1-1v-4a1 1 0 0 1 .445-.832l3-2a1 1 0 0 1 1.11 0l3 2A1 1 0 0 1 22 17v4a1 1 0 0 1-1 1z"/><path d="M18 10a8 8 0 0 0-16 0c0 4.993 5.539 10.193 7.399 11.799a1 1 0 0 0 .601.2"/><path d="M18 22v-3"/><circle cx="10" cy="10" r="3"/></svg>
+                        </div>
+                        <div id="city">
+                        </div>
+                    </div>
+                </div>
+                <div id="content_top_right" >
+                     
+                </div>
+            </section>
+            <h3 style="margin-top: 0px; margin-bottom: 0px; margin-left: 10px; color: #051a81;">
+                Next Three Days Forecast
+            </h3>
+            <section id="content_bottom">
+                <div id="content_bottom_left">
+                    <ul>
+                        <li class="day_btn day1" style="margin-top: -15px;">
+                            <button>
+                                <nav style="padding-left: 10px;">
+                                    <div id="weather_icon2">
+                                   
+                                    </div>
+                                </nav>
+                                <nav>
+                                    <div id="temperature2">
+                                        <p style=" width: 60px; margin-left: 10px; margin-top: 10px;"></p>
+                                    </div>
+                                </nav>
+                                <nav>
+                                    <div id="weekDay">
+                                        <p style=" width: 40px; margin-left: 10px; margin-top: 10px;"></p>
+                                    </div>
+                                </nav>
+                            </button>
+                        </li>
+                        <li class="day_btn day2">
+                            <button>
+                                <nav style="padding-left: 10px;">
+                                   <div id="weather_icon2">
+                                       </div> 
+                                </nav>
+                                <nav>
+                                    <div id="temperature2">
+                                        <p style=" width: 60px; margin-left: 10px; margin-top: 10px;"></p>
+                                    </div>
+                                </nav>
+                                <nav>
+                                     <div id="weekDay">
+                                        <p style=" width: 40px; margin-left: 10px; margin-top: 10px;"></p>
+                                    </div>
+                                </nav>
+                            </button>
+                        </li>
+                        <li class="day_btn day3">
+                            <button>
+                                <nav style="padding-left: 10px;">
+                                   <div id="weather_icon2">
+                                    </div>
+                                </nav>
+                                <nav>
+                                    <div id="temperature2">
+                                        <p style=" width: 60px; margin-left: 10px; margin-top: 10px;"></p>
+                                    </div>                                   
+                                </nav>
+                                <nav>
+                                     <div id="weekDay">
+                                        <p style=" width: 40px; margin-left: 10px; margin-top: 10px;"></p>
+                                    </div>
+                                </nav>
+                            </button>
+                        </li>
+                        <li class="day_btn day4">
+                            <button>
+                                <nav style="padding-left: 10px;">
+                                    <div id="weather_icon2">
+                                     </div>
+                                </nav>
+                                <nav>
+                                    <div id="temperature2">
+                                        <p style=" width: 60px; margin-left: 10px; margin-top: 10px;"></p> 
+                                    </div> 
+                                </nav>
+                                <nav>
+                                    <div id="weekDay">
+                                        <p style=" width: 40px; margin-left: 10px; margin-top: 10px;"></p>
+                                    </div>
+                                </nav>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="content_bottom_right">
+                    <nav class="weather_parameters">
+                        <div id="weather_parameters_icon" style="margin-bottom: 0px;">
+                            <img src="images/Humidity.png" height="50px" width="50px">
+                        </div>
+                        <div id="weather_humidity">
+                        </div>
+                    </nav>
+                    <nav class="weather_parameters">
+                        <div id="weather_parameters_icon" style="margin-bottom: 0px;">
+                            <img src="images/Wind.png" height="50px" width="50px">
+                        </div>
+                        <div id="weather_wind">
+                            <p></p>
+                        </div>
+                    </nav>
+                    <nav class="weather_parameters">
+                        <div id="weather_parameters_icon" style="margin-bottom: 0px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0059F9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-gauge-icon lucide-circle-gauge"><path d="M15.6 2.7a10 10 0 1 0 5.7 5.7"/><circle cx="12" cy="12" r="2"/><path d="M13.4 10.6 19 5"/></svg>
+                        </div>
+                        <div id="weather_pressure">
+                            <p></p>
+                        </div>
+                    </nav>
+                    <nav class="weather_parameters">
+                        <div id="weather_parameters_icon" style="margin-bottom: 0px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0059F9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+                        </div>
+                        <div id="weather_visibility">
+                            <p></p>
+                        </div>
+                    </nav>
+                    <nav class="weather_parameters">
+                        <div id="weather_parameters_icon" style="margin-bottom: 0px;">
+                            <img src="images/Sunrise.png" height="50px" width="50px">
+                        </div>
+                        <div id="weather_sunrise">
+                            <p></p>
+                        </div>
+                    </nav>
+                    <nav class="weather_parameters">
+                        <div id="weather_parameters_icon" style="margin-bottom: 0px;">
+                            <img src="images/Sunset.png" height="50px" width="50px">
+                        </div>
+                        <div id="weather_sunset">
+                            <p></p>
+                        </div>
+                    </nav>
+                </div>
+            </section>
+        </div>
+        <footer>
+            <nav id="footer_left">
+                <h4>Data provided by OpenWeatherMap</h4>
+                <p>Weather updates automatically every 15 minutes | Developed by Agala George</p>
+            </nav>
+            <nav id="footer_right">
+                <button class="feedback_btn" id="feedback_btn" aria-label="Provide feedback">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-dot-icon lucide-message-square-dot"><path d="M12.7 3H4a2 2 0 0 0-2 2v16.286a.71.71 0 0 0 1.212.502l2.202-2.202A2 2 0 0 1 6.828 19H20a2 2 0 0 0 2-2v-4.7"/><circle cx="19" cy="6" r="3"/></svg>
+                    <p>Feedback</p>
+                </button>
+            </nav>
+        </footer>
+    <div class="modal" id="feedback_modal">
+        <div class="modal_content">
+           <div id="modal_head">
+                <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24" fill="#4361EE" stroke="#4361EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-dot-icon lucide-message-square-dot"><path d="M12.7 3H4a2 2 0 0 0-2 2v16.286a.71.71 0 0 0 1.212.502l2.202-2.202A2 2 0 0 1 6.828 19H20a2 2 0 0 0 2-2v-4.7"/><circle cx="19" cy="6" r="3"/></svg>     
+                <h3>Provide Feedback</h3>
+           </div>
+            <span class="close_modal">&times;</span>
+            <form id="feedback_form">
+                <div class="form_group">
+                    <label for="feedback_email">Email Address</label>
+                    <input type="email" id="feedback_email" placeholder="Your email">
+                </div>
+                <div class="form_group">
+                    <label for="feedback_message">Message</label>
+                    <textarea id="feedback_message" placeholder="Your feedback..." required></textarea>
+                </div>
+                <button type="submit" class="submit_btn">Submit</button>
+            </form>
+        </div>
+    </div>
+        <script src="js/script.js"></script>
+        <script>
+            // Time and Date 
+            function updateDateTime() {
+                const now = new Date();
+
+                const dateOptions = { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                const timeOptions = { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit', 
+                    hour12: false 
+                };
+                const formattedDate = now.toLocaleDateString('en-US', dateOptions);
+                const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
+
+                document.getElementById('date').textContent = formattedDate;
+                document.getElementById('time').textContent = formattedTime;
+            }
+            updateDateTime(); // initial call
+            setInterval(updateDateTime, 1000); // update every second
+
+            
+            // Get elements for the Feedback Modal
+            const feedbackBtn = document.getElementById('feedback_btn');
+            const feedbackModal = document.getElementById('feedback_modal');
+            const closeModal = document.querySelector('.close_modal');
+            const feedbackForm = document.getElementById('feedback_form');
+
+            // Show modal
+            function showFeedbackModal() {
+                feedbackModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            // Hide modal
+            function hideFeedbackModal() {
+                feedbackModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+
+            // Event listeners
+            feedbackBtn.addEventListener('click', showFeedbackModal);
+            closeModal.addEventListener('click', hideFeedbackModal);
+
+            // Close modal on outside click
+            feedbackModal.addEventListener('click', (e) => {
+                if (e.target === feedbackModal) {
+                    hideFeedbackModal();
+                }
+            });
+
+            // Handle form submission
+            feedbackForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('feedback_email').value;
+                const message = document.getElementById('feedback_message').value;
+                
+                console.log('Feedback submitted:', { email, message });
+                
+                const form = e.target;
+                form.innerHTML = `
+                    <div class="feedback_thankyou">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Thank You!</h3>
+                        <p>Your feedback has been received.</p>
+                        <button type="button" class="submit_btn" onclick="hideFeedbackModal()">Close</button>
+                    </div>
+                `;
+
+                // Reset form after 3 seconds
+                setTimeout(() => {
+                    form.innerHTML = `
+                        <div class="form_group">
+                            <label for="feedback_email">Email (optional)</label>
+                            <input type="email" id="feedback_email" placeholder="Your email">
+                        </div>
+                        <div class="form_group">
+                            <label for="feedback_message">Message</label>
+                            <textarea id="feedback_message" placeholder="Your feedback..." required></textarea>
+                        </div>
+                        <button type="submit" class="submit_btn">Submit</button>
+                    `;
+                }, 3000);
+            });
+
+        </script>
+</body>
+</html>
